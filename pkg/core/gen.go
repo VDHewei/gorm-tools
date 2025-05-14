@@ -24,6 +24,24 @@ type (
 	Option func(*GenTools)
 )
 
+func WithDB(db *gorm.DB) Option {
+	return func(g *GenTools) {
+		g.g.UseDB(db)
+	}
+}
+
+func WithGen(g *gen.Generator) Option {
+	return func(tools *GenTools) {
+		tools.g = g
+	}
+}
+
+func WithConfig(c *config.CmdParams) Option {
+	return func(tools *GenTools) {
+		tools.params = c
+	}
+}
+
 // ConnectDB choose db type for connection to database
 func ConnectDB(t config.DBType, dsn string) (*gorm.DB, error) {
 	if dsn == "" {
@@ -112,6 +130,12 @@ func (g *GenTools) RegisterModels(models ...interface{}) {
 }
 
 func (g *GenTools) Execute() {
+	if g.PrintHelp() {
+		return
+	}
+	if g.GenYAMLConfigFile() {
+		return
+	}
 	g.g.UseDB(g.GetDB())
 	if g.params.OnlyModel {
 		if err := g.GenModels(); err != nil {
@@ -152,22 +176,18 @@ func (g *GenTools) PrintHelp() bool {
 	return g.params.IsHelp()
 }
 
-func WithDB(db *gorm.DB) Option {
-	return func(g *GenTools) {
-		g.g.UseDB(db)
+func (g *GenTools) GenYAMLConfigFile() bool {
+	file := g.params.GetGenDefaultYAMLFile()
+	if file != "" {
+		if err := config.SaveYAMLConfigFile(g.params, file); err != nil {
+			log.Fatalln("gen yaml config file fail:", err)
+			os.Exit(-1)
+		} else {
+			log.Printf("gen yaml config file success ,file path: %s", file)
+		}
+		return true
 	}
-}
-
-func WithGen(g *gen.Generator) Option {
-	return func(tools *GenTools) {
-		tools.g = g
-	}
-}
-
-func WithConfig(c *config.CmdParams) Option {
-	return func(tools *GenTools) {
-		tools.params = c
-	}
+	return false
 }
 
 func New(opts ...Option) *GenTools {

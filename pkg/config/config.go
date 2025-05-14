@@ -12,24 +12,25 @@ import (
 
 type (
 	CmdParams struct {
-		args              *Options `yaml:"-" json:"-"`
-		DSN               string   `yaml:"dsn"`               // consult[https://gorm.io/docs/connecting_to_the_database.html]"
-		DB                string   `yaml:"db"`                // input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]
-		Tables            []string `yaml:"tables"`            // enter the required data table or leave it blank
-		OnlyModel         bool     `yaml:"onlyModel"`         // only generate model
-		OutPath           string   `yaml:"outPath"`           // specify a directory for output
-		OutFile           string   `yaml:"outFile"`           // query code file name, default: gen.go
-		WithUnitTest      bool     `yaml:"withUnitTest"`      // generate unit test for query code
-		ModelPkgName      string   `yaml:"modelPkgName"`      // generated model code's package name
-		FieldNullable     bool     `yaml:"fieldNullable"`     // generate with pointer when field is nullable
-		FieldCoverable    bool     `yaml:"fieldCoverable"`    // generate with pointer when field has default value
-		FieldWithIndexTag bool     `yaml:"fieldWithIndexTag"` // generate field with gorm index tag
-		FieldWithTypeTag  bool     `yaml:"fieldWithTypeTag"`  // generate field with gorm column type tag
-		FieldSignable     bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
-		FieldJSONTypeTag  bool     `yaml:"fieldJSONTypeTag"`  // generate field with gorm json type
-		FieldsTypeMapping []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
-		ImportPkgPaths    []string `yaml:"importPkgPaths"`    //  generate code import package path
-		Mode              string   `json:"mode"`              // generate mode
+		args                  *Options `yaml:"-" json:"-"`
+		DSN                   string   `yaml:"dsn"`               // consult[https://gorm.io/docs/connecting_to_the_database.html]"
+		DB                    string   `yaml:"db"`                // input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]
+		Tables                []string `yaml:"tables"`            // enter the required data table or leave it blank
+		OnlyModel             bool     `yaml:"onlyModel"`         // only generate model
+		OutPath               string   `yaml:"outPath"`           // specify a directory for output
+		OutFile               string   `yaml:"outFile"`           // query code file name, default: gen.go
+		WithUnitTest          bool     `yaml:"withUnitTest"`      // generate unit test for query code
+		ModelPkgName          string   `yaml:"modelPkgName"`      // generated model code's package name
+		FieldNullable         bool     `yaml:"fieldNullable"`     // generate with pointer when field is nullable
+		FieldCoverable        bool     `yaml:"fieldCoverable"`    // generate with pointer when field has default value
+		FieldWithIndexTag     bool     `yaml:"fieldWithIndexTag"` // generate field with gorm index tag
+		FieldWithTypeTag      bool     `yaml:"fieldWithTypeTag"`  // generate field with gorm column type tag
+		FieldSignable         bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
+		FieldJSONTypeTag      bool     `yaml:"fieldJSONTypeTag"`  // generate field with gorm json type
+		FieldsTypeMapping     []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
+		ImportPkgPaths        []string `yaml:"importPkgPaths"`    //  generate code import package path
+		Mode                  string   `yaml:"mode"`              // generate mode (input DefaultQuery|QueryInterface|OutContext)
+		defaultYAMLConfigFile string   `json:"-" yaml:"-"`        // generate default yaml config file
 	}
 	// YamlConfig is yaml config struct
 	YamlConfig struct {
@@ -171,6 +172,9 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	if args.FieldJSONTypeTag {
 		c.FieldJSONTypeTag = args.FieldJSONTypeTag
 	}
+	if args.DefaultYAMLConfigFile != "" {
+		c.defaultYAMLConfigFile = args.DefaultYAMLConfigFile
+	}
 	if len(args.FieldsTypeMapping) > 0 {
 		c.FieldsTypeMapping = args.FieldsTypeMapping
 	}
@@ -249,6 +253,10 @@ func (c *CmdParams) IsHelp() bool {
 	return c.args != nil && c.args.GetHelpMsg()
 }
 
+func (c *CmdParams) GetGenDefaultYAMLFile() string {
+	return c.defaultYAMLConfigFile
+}
+
 func createTypeMapping(typ, value string) func(columnType gorm.ColumnType) (dataType string) {
 	return func(columnType gorm.ColumnType) (dataType string) {
 		vs, _ := columnType.ColumnType()
@@ -286,4 +294,15 @@ func replaceComment(comment string) string {
 func New() *CmdParams {
 	var c = &CmdParams{}
 	return c
+}
+
+func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
+	var data, err = yaml.Marshal(params)
+	if err != nil {
+		return err
+	}
+	if err = os.WriteFile(saveFile, data, 0644); err != nil {
+		return err
+	}
+	return nil
 }
