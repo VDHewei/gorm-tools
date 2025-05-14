@@ -1,12 +1,15 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"gopkg.in/yaml.v3"
 	gen "gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -300,6 +303,23 @@ func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
 	var data, err = yaml.Marshal(params)
 	if err != nil {
 		return err
+	}
+	ext := strings.ToLower(filepath.Ext(saveFile))
+	if ext == "" {
+		var state os.FileInfo
+		if state, err = os.Stat(saveFile); err != nil {
+			if !errors.Is(err, os.ErrNotExist) {
+				return err
+			}
+			_ = os.MkdirAll(saveFile, os.ModePerm)
+		}
+		if state != nil && state.IsDir() {
+			ext = ".yaml"
+			saveFile = fmt.Sprintf("%s/config.yaml", saveFile)
+		}
+	}
+	if ext != ".yaml" && ext != ".yml" {
+		return errors.New("save file must be  yaml or yml")
 	}
 	if err = os.WriteFile(saveFile, data, 0644); err != nil {
 		return err
