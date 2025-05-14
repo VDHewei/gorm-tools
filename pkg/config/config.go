@@ -3,6 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v3"
 	"gorm.io/gen"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log"
 	"os"
@@ -27,6 +28,7 @@ type (
 		FieldSignable     bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
 		FieldJSONTypeTag  bool     `yaml:"fieldJSONTypeTag"`  // generate field with gorm json type
 		FieldsTypeMapping []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
+		ImportPkgPaths    []string `yaml:"importPkgPaths"`    //  generate code import package path
 		Mode              string   `json:"mode"`              // generate mode
 	}
 	// YamlConfig is yaml config struct
@@ -169,6 +171,12 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	if args.FieldJSONTypeTag {
 		c.FieldJSONTypeTag = args.FieldJSONTypeTag
 	}
+	if len(args.FieldsTypeMapping) > 0 {
+		c.FieldsTypeMapping = args.FieldsTypeMapping
+	}
+	if len(args.ImportPkgPaths) > 0 {
+		c.ImportPkgPaths = args.ImportPkgPaths
+	}
 	return c
 }
 
@@ -198,25 +206,53 @@ func (c *CmdParams) GetMode() gen.GenerateMode {
 }
 
 func (c *CmdParams) GetImportPkgPaths() []string {
-
+	if len(c.ImportPkgPaths) > 0 {
+		return c.ImportPkgPaths
+	}
 	return []string{}
 }
 
 func (c *CmdParams) GetTypeMappings() map[string]func(columnType gorm.ColumnType) (dataType string) {
-
-	if c.FieldsTypeMapping == nil {
-		return nil
+	var mappings = make(map[string]func(columnType gorm.ColumnType) (dataType string))
+	if c.FieldsTypeMapping != nil {
+		for _, v := range c.FieldsTypeMapping {
+			offset := strings.Index(v, ":")
+			if offset <= 0 {
+				continue
+			}
+			name := v[:offset]
+			value := v[offset+1:]
+			if name == "" || value == "" {
+				continue
+			}
+			if mappings[name] != nil {
+				log.Printf("duplicate type mapping name %s \n", name)
+				continue
+			}
+			mappings[name] = createTypeMapping(name, value)
+		}
 	}
-	return map[string]func(columnType gorm.ColumnType) (dataType string){
-		"jsonb": func(columnType gorm.ColumnType) (dataType string) {
-			return "datatypes.JSON"
-		},
+	if c.FieldJSONTypeTag {
+		mappings["jsonb"] = createTypeMapping("jsonb", "datatypes.JSON")
 	}
+	return mappings
 }
 
 func (c *CmdParams) GetModelOptions() []gen.ModelOpt {
+	return []gen.ModelOpt{
+		gen.FieldComment("", ""),
+		gen.FieldGORMTagReg("*", nullFieldForGo),
+	}
+}
 
-	return []gen.ModelOpt{}
+func createTypeMapping(typ, value string) func(columnType gorm.ColumnType) (dataType string) {
+	return func(columnType gorm.ColumnType) (dataType string) {
+		vs, _ := columnType.ColumnType()
+		if columnType.DatabaseTypeName() == typ || vs == typ {
+			return value
+		}
+		return "string"
+	}
 }
 
 func extractDSNDBType(dsn string) string {
@@ -227,6 +263,13 @@ func extractDSNDBType(dsn string) string {
 		return DbPostgres.String()
 	}
 	return DbMySQL.String()
+}
+
+func nullFieldForGo(tag field.GormTag) field.GormTag {
+	for key, values := range tag {
+		log.Printf("tag=%s,vlaues=%+v", key, values)
+	}
+	return tag
 }
 
 func New() *CmdParams {

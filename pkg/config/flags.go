@@ -22,6 +22,7 @@ type Options struct {
 	FieldSignable     bool     `env:"GEN_FIELD_SIGNABLE" json:"fieldSignable" long:"fieldSignable" description:"detect integer field's unsigned type, adjust generated data type"`
 	FieldJSONTypeTag  bool     `env:"GEN_FIELD_JSON_TYPE_TAG" json:"fieldJSONTypeTag" long:"fieldJSONTypeTag" description:"generate field with gorm json type"`
 	FieldsTypeMapping []string `env:"GEN_FIELDS_TYPE_MAPPING" json:"fieldsTypeMapping" long:"fieldsTypeMapping" short:"m" description:"mapping field type mapping ,eg: jsonb:datatypes.JSON"`
+	ImportPkgPaths    []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`
 }
 
 func NewOptions() *Options {

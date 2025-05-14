@@ -137,6 +137,7 @@ func (g *GenTools) LoadConfig() gen.Config {
 		FieldWithIndexTag: g.params.FieldWithIndexTag,
 		FieldWithTypeTag:  g.params.FieldWithTypeTag,
 	}
+	// mappings
 	if m := g.params.GetTypeMappings(); len(m) > 0 {
 		c.WithDataTypeMap(m)
 	}

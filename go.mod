@@ -1,8 +1,6 @@
 module github.com/VDHewei/gorm-tools
 
-go 1.21
-
-toolchain go1.24.2
+go 1.23.0
 
 require (
 	github.com/jessevdk/go-flags v1.6.1
