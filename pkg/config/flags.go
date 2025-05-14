@@ -11,6 +11,7 @@ type Options struct {
 	DSN                   string   `env:"GEN_DSN" json:"dsn" required:"true" long:"dsn" description:"consult[https://gorm.io/docs/connecting_to_the_database.html]"`
 	DB                    string   `env:"GEN_DB" json:"db" long:"db" description:"input mysql|postgres|sqlite|sqlserver|clickhouse. consult[https://gorm.io/docs/connecting_to_the_database.html]"`
 	TableList             string   `env:"GEN_TABLES" json:"tables" long:"tables" short:"t" description:"enter the required data table or leave it blank"`
+	ExcludeTableList      string   `env:"GEN_EXCLUDE_TABLES" json:"exclude_tables" long:"excludeTables" short:"e" description:"enter the exclude data table or leave it blank"`
 	OnlyModel             bool     `env:"GEN_ONLY_MODEL" json:"onlyModel" long:"onlyModel" description:"only generate models (without query file)"`
 	OutPath               string   `env:"GEN_OUT_PATH" json:"outPath" long:"outPath" description:"specify a directory for output"`
 	OutFile               string   `env:"GEN_OUTFILE" json:"outFile" long:"outFile" description:"query code file name, default: gen.go" default:"gen.go"`

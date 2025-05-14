@@ -19,6 +19,7 @@ type (
 		DSN                   string   `yaml:"dsn"`               // consult[https://gorm.io/docs/connecting_to_the_database.html]"
 		DB                    string   `yaml:"db"`                // input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]
 		Tables                []string `yaml:"tables"`            // enter the required data table or leave it blank
+		ExcludeTableList      []string `yaml:"exclude_tables"`    // enter the exclude data table or leave it blank
 		OnlyModel             bool     `yaml:"onlyModel"`         // only generate model
 		OutPath               string   `yaml:"outPath"`           // specify a directory for output
 		OutFile               string   `yaml:"outFile"`           // query code file name, default: gen.go
@@ -31,7 +32,7 @@ type (
 		FieldSignable         bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
 		FieldJSONTypeTag      bool     `yaml:"fieldJSONTypeTag"`  // generate field with gorm json type
 		FieldsTypeMapping     []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
-		ImportPkgPaths        []string `yaml:"importPkgPaths"`    //  generate code import package path
+		ImportPkgPaths        []string `yaml:"importPkgPaths"`    // generate code import package path
 		Mode                  string   `yaml:"mode"`              // generate mode (input DefaultQuery|QueryInterface|OutContext)
 		defaultYAMLConfigFile string   `json:"-" yaml:"-"`        // generate default yaml config file
 	}
@@ -91,18 +92,38 @@ func (c *CmdParams) Revise() *CmdParams {
 	if c.OutPath == "" {
 		c.OutPath = DefaultQueryPath
 	}
-	if len(c.Tables) == 0 {
-		return c
-	}
-	tableList := make([]string, 0, len(c.Tables))
-	for _, tableName := range c.Tables {
-		_tableName := strings.TrimSpace(tableName) // trim leading and trailing space in tableName
-		if _tableName == "" {                      // skip empty tableName
-			continue
+	var excludes = make(map[string]struct{})
+	if len(c.ExcludeTableList) > 0 {
+		tableList := make([]string, 0, len(c.ExcludeTableList))
+		for _, tableName := range c.ExcludeTableList {
+			_tableName := strings.TrimSpace(tableName) // trim leading and trailing space in tableName
+			if _tableName == "" {                      // skip empty tableName
+				continue
+			}
+			if _, ok := excludes[_tableName]; ok {
+				continue
+			}
+			excludes[_tableName] = struct{}{}
+			tableList = append(tableList, _tableName)
 		}
-		tableList = append(tableList, _tableName)
+		c.ExcludeTableList = tableList
 	}
-	c.Tables = tableList
+	if len(c.Tables) > 0 {
+		indexes := make(map[string]struct{})
+		tableList := make([]string, 0, len(c.Tables))
+		for _, tableName := range c.Tables {
+			_tableName := strings.TrimSpace(tableName) // trim leading and trailing space in tableName
+			if _tableName == "" {                      // skip empty tableName
+				continue
+			}
+			if _, ok := indexes[_tableName]; ok {
+				continue
+			}
+			indexes[_tableName] = struct{}{}
+			tableList = append(tableList, _tableName)
+		}
+		c.Tables = tableList
+	}
 	return c
 }
 
@@ -141,6 +162,9 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	}
 	if args.TableList != "" {
 		c.Tables = strings.Split(args.TableList, ",")
+	}
+	if args.ExcludeTableList != "" {
+		c.ExcludeTableList = strings.Split(args.ExcludeTableList, ",")
 	}
 	if args.OnlyModel {
 		c.OnlyModel = args.OnlyModel
@@ -263,6 +287,12 @@ func (c *CmdParams) GetGenDefaultYAMLFile() string {
 func (c *CmdParams) withDefault() *CmdParams {
 	if c.Mode == "" {
 		c.Mode = "DefaultQuery|QueryInterface|OutContext"
+	}
+	if len(c.ImportPkgPaths) <= 0 {
+		c.ImportPkgPaths = []string{"gorm.io/datatypes"}
+	}
+	if len(c.FieldsTypeMapping) <= 0 {
+		c.FieldsTypeMapping = []string{"jsonb:datatypes.JSON"}
 	}
 	return c
 }

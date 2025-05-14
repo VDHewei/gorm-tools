@@ -104,10 +104,11 @@ func (g *GenTools) GetDB() *gorm.DB {
 func (g *GenTools) GenModels() error {
 	var (
 		err    error
-		tables = g.params.Tables
+		db     = g.GetDB()
+		tables = g.GetTables()
 		opts   = g.params.GetModelOptions()
 	)
-	if g.models, err = GenModels(g.g, g.GetDB(), tables, opts...); err != nil {
+	if g.models, err = GenModels(g.g, db, tables, opts...); err != nil {
 		return err
 	}
 	return nil
@@ -188,6 +189,32 @@ func (g *GenTools) GenYAMLConfigFile() bool {
 		return true
 	}
 	return false
+}
+
+func (g *GenTools) GetTables() []string {
+	if len(g.params.Tables) > 0 {
+		return g.params.Tables
+	}
+	if g.db == nil {
+		return []string{}
+	}
+	all, err := g.db.Migrator().GetTables()
+	if err != nil {
+		log.Fatalln("get tables fail:", err)
+		return nil
+	}
+	tables := make([]string, 0, len(all))
+	excludes := make(map[string]struct{})
+	for _, exclude := range g.params.ExcludeTableList {
+		excludes[exclude] = struct{}{}
+	}
+	for _, t := range all {
+		if _, ok := excludes[t]; ok {
+			continue
+		}
+		tables = append(tables, t)
+	}
+	return tables
 }
 
 func New(opts ...Option) *GenTools {
