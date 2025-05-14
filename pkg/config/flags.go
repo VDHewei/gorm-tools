@@ -36,6 +36,10 @@ func NewOptions() *Options {
 func (f *Options) Parse() (*Options, error) {
 	args, err := flags.Parse(f)
 	if err != nil {
+		if errors.Is(err.(*flags.Error).Type, flags.ErrRequired) &&
+			f.DefaultYAMLConfigFile != "" {
+			return f, nil
+		}
 		if errors.Is(err.(*flags.Error).Type, flags.ErrHelp) {
 			f.helpMsg = true
 			return f, nil

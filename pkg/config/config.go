@@ -260,6 +260,13 @@ func (c *CmdParams) GetGenDefaultYAMLFile() string {
 	return c.defaultYAMLConfigFile
 }
 
+func (c *CmdParams) withDefault() *CmdParams {
+	if c.Mode == "" {
+		c.Mode = "DefaultQuery|QueryInterface|OutContext"
+	}
+	return c
+}
+
 func createTypeMapping(typ, value string) func(columnType gorm.ColumnType) (dataType string) {
 	return func(columnType gorm.ColumnType) (dataType string) {
 		vs, _ := columnType.ColumnType()
@@ -300,7 +307,7 @@ func New() *CmdParams {
 }
 
 func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
-	var data, err = yaml.Marshal(params)
+	var data, err = yaml.Marshal(params.withDefault())
 	if err != nil {
 		return err
 	}
