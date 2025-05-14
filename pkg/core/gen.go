@@ -8,7 +8,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
-	"gorm.io/gen"
+	gen "gorm.io/gen"
 	"gorm.io/gorm"
 	"log"
 	"os"
@@ -146,6 +146,10 @@ func (g *GenTools) LoadConfig() gen.Config {
 		c.WithImportPkgPath(paths...)
 	}
 	return c
+}
+
+func (g *GenTools) PrintHelp() bool {
+	return g.params.IsHelp()
 }
 
 func WithDB(db *gorm.DB) Option {

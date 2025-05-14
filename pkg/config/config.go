@@ -2,7 +2,7 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
-	"gorm.io/gen"
+	gen "gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log"
@@ -241,8 +241,12 @@ func (c *CmdParams) GetTypeMappings() map[string]func(columnType gorm.ColumnType
 func (c *CmdParams) GetModelOptions() []gen.ModelOpt {
 	return []gen.ModelOpt{
 		gen.FieldGORMTagReg("*", nullFieldForGo),
-		gen.FieldRegexComment(`\{\{*\}\}`, replaceComment),
+		gen.FieldRegexCommentReplace(`\{\{*\}\}`, replaceComment),
 	}
+}
+
+func (c *CmdParams) IsHelp() bool {
+	return c.args != nil && c.args.GetHelpMsg()
 }
 
 func createTypeMapping(typ, value string) func(columnType gorm.ColumnType) (dataType string) {

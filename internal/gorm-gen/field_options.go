@@ -132,6 +132,17 @@ var (
 			return m
 		}
 	}
+	// FieldRegexCommentReplace specify field comment replace in generated struct
+	FieldRegexCommentReplace = func(commentReg string, replacer func(string) string) model.ModifyFieldOpt {
+		reg := regexp.MustCompile(commentReg)
+		return func(m *model.Field) *model.Field {
+			if reg.MatchString(m.ColumnComment) {
+				m.ColumnComment = replacer(m.ColumnComment)
+				m.MultilineComment = strings.Contains(m.ColumnComment, "\n")
+			}
+			return m
+		}
+	}
 	// FieldType specify field type in generated struct
 	FieldType = func(columnName string, newType string) model.ModifyFieldOpt {
 		return func(m *model.Field) *model.Field {

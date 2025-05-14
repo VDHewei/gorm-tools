@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"github.com/jessevdk/go-flags"
+	"log"
 )
 
 type Options struct {
@@ -23,6 +25,7 @@ type Options struct {
 	FieldJSONTypeTag  bool     `env:"GEN_FIELD_JSON_TYPE_TAG" json:"fieldJSONTypeTag" long:"fieldJSONTypeTag" description:"generate field with gorm json type"`
 	FieldsTypeMapping []string `env:"GEN_FIELDS_TYPE_MAPPING" json:"fieldsTypeMapping" long:"fieldsTypeMapping" short:"m" description:"mapping field type mapping ,eg: jsonb:datatypes.JSON"`
 	ImportPkgPaths    []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`
+	helpMsg           bool
 }
 
 func NewOptions() *Options {
@@ -30,6 +33,18 @@ func NewOptions() *Options {
 }
 
 func (f *Options) Parse() (*Options, error) {
-	_, err := flags.Parse(f)
-	return f, err
+	args, err := flags.Parse(f)
+	if err != nil {
+		if errors.Is(err.(*flags.Error).Type, flags.ErrHelp) {
+			f.helpMsg = true
+			return f, nil
+		}
+		return nil, err
+	}
+	log.Printf("args: %+v", args)
+	return f, nil
+}
+
+func (f *Options) GetHelpMsg() bool {
+	return f.helpMsg
 }
