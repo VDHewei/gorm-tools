@@ -240,8 +240,8 @@ func (c *CmdParams) GetTypeMappings() map[string]func(columnType gorm.ColumnType
 
 func (c *CmdParams) GetModelOptions() []gen.ModelOpt {
 	return []gen.ModelOpt{
-		gen.FieldComment("", ""),
 		gen.FieldGORMTagReg("*", nullFieldForGo),
+		gen.FieldRegexComment(`\{\{*\}\}`, replaceComment),
 	}
 }
 
@@ -270,6 +270,13 @@ func nullFieldForGo(tag field.GormTag) field.GormTag {
 		log.Printf("tag=%s,vlaues=%+v", key, values)
 	}
 	return tag
+}
+
+func replaceComment(comment string) string {
+	if strings.Contains(comment, "{{") && strings.Contains(comment, "}}") {
+		return strings.ReplaceAll(strings.ReplaceAll(comment, "{{", "{"), "}}", "}")
+	}
+	return comment
 }
 
 func New() *CmdParams {

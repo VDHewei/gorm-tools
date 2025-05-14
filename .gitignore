@@ -27,3 +27,4 @@ tests/
 .idea/
 .docker/
 .vscode/
+internal/gen/.git/
