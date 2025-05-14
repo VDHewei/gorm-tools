@@ -54,6 +54,6 @@ require (
 )
 
 replace (
-	gorm.io/gen v0.3.27 => ./internal/gen
+	gorm.io/gen v0.3.27 => ./internal/gorm-gen
 	gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
 )
