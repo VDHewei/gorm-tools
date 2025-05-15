@@ -11,7 +11,7 @@ Install GEN as a binary tool
 ## usage
 
 ```shell
- gentool -h  
+ gorm-tools -h  
  
  Usage of gentool:
   --db string
