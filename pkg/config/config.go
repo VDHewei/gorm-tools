@@ -8,6 +8,7 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,6 +66,11 @@ func NewFromYaml(path string) *CmdParams {
 	return yamlConfig.Database
 }
 
+func New() *CmdParams {
+	var c = &CmdParams{}
+	return c
+}
+
 func (c *CmdParams) Revise() *CmdParams {
 	if c == nil {
 		return c
@@ -74,6 +80,16 @@ func (c *CmdParams) Revise() *CmdParams {
 			c.DB = DbMySQL.String()
 		} else {
 			c.DB = extractDSNDBType(c.DSN)
+		}
+	}
+	if c.DB == DbPostgres.String() {
+		c.DSN = schemaPostgresToValues(c.DSN)
+	} else {
+		if c.DB == DbSQLite.String() {
+			c.DSN = strings.TrimPrefix(c.DSN, fmt.Sprintf("%s://", c.DB))
+			c.DSN = fmt.Sprintf("%s:%s", "file", c.DSN)
+		} else if c.DB != DbSQLServer.String() {
+			c.DSN = strings.TrimPrefix(c.DSN, fmt.Sprintf("%s://", c.DB))
 		}
 	}
 	if c.Mode == "" {
@@ -335,9 +351,29 @@ func createTypeMapping(typ, value string) func(columnType gorm.ColumnType) (data
 
 func extractDSNDBType(dsn string) string {
 	if strings.Contains(dsn, "://") {
-		return strings.ToLower(strings.Split(dsn, "://")[0])
+		schema := strings.ToLower(strings.Split(dsn, "://")[0])
+		switch schema {
+		case DbMySQL.String():
+			return DbMySQL.String()
+		case DbPostgres.String():
+			return DbPostgres.String()
+		case DbSQLite.String(), `file`:
+			return DbSQLite.String()
+		case DbSQLServer.String():
+			return DbSQLServer.String()
+		case DbClickHouse.String(), `tcp`:
+			return DbClickHouse.String()
+		default:
+			return schema
+		}
+	}
+	if strings.HasPrefix(dsn, "file:") {
+		return DbSQLite.String()
 	}
 	if strings.Contains(dsn, "search_path=") {
+		return DbPostgres.String()
+	}
+	if strings.Contains(dsn, " ") && strings.Contains(dsn, "=") {
 		return DbPostgres.String()
 	}
 	return DbMySQL.String()
@@ -357,13 +393,8 @@ func replaceComment(comment string) string {
 	return comment
 }
 
-func New() *CmdParams {
-	var c = &CmdParams{}
-	return c
-}
-
 func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
-	var data, err = yaml.Marshal(params.withDefault())
+	var data, err = yaml.Marshal(params.withDefault().Revise())
 	if err != nil {
 		return err
 	}
@@ -388,4 +419,47 @@ func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
 		return err
 	}
 	return nil
+}
+
+func schemaPostgresToValues(dsn string) string {
+	var (
+		values  []string
+		indexes = map[string]struct{}{}
+	)
+	if strings.Contains(dsn, "://") {
+		uri, err := url.Parse(dsn)
+		if err != nil {
+			log.Printf("parse dsn fail:%s", err.Error())
+			return dsn
+		}
+		values = append(values, fmt.Sprintf("host=%s", uri.Hostname()))
+		indexes["host"] = struct{}{}
+		if p := uri.Port(); p != "" {
+			values = append(values, uri.Port())
+		} else {
+			values = append(values, "5432")
+		}
+		indexes["port"] = struct{}{}
+		if uri.User != nil {
+			values = append(values, fmt.Sprintf("user=%s", uri.User.Username()))
+			indexes["user"] = struct{}{}
+			if p, ok := uri.User.Password(); ok {
+				values = append(values, fmt.Sprintf("password=%s", p))
+				indexes["password"] = struct{}{}
+			}
+		}
+		values = append(values, fmt.Sprintf("dbname=%s", uri.Path[1:]))
+		indexes["dbname"] = struct{}{}
+		for k, v := range uri.Query() {
+			if _, ok := indexes[k]; ok {
+				continue
+			}
+			indexes[k] = struct{}{}
+			values = append(values, fmt.Sprintf("%s=%s", k, v[0]))
+		}
+	}
+	if len(values) > 0 {
+		return strings.Join(values, " ")
+	}
+	return dsn
 }

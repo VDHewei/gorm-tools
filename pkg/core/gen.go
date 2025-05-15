@@ -137,6 +137,11 @@ func (g *GenTools) Execute() {
 	if g.GenYAMLConfigFile() {
 		return
 	}
+	if g.params.DSN == "" {
+		log.Fatalln("generate model require dsn option")
+		os.Exit(-1)
+		return
+	}
 	g.g.UseDB(g.GetDB())
 	if g.params.OnlyModel {
 		if err := g.GenModels(); err != nil {
