@@ -153,6 +153,7 @@ func (c *CmdParams) Parse() *CmdParams {
 	//use yml config
 	if cx := NewFromYaml(args.YAMLPath); cx != nil {
 		cx.args = args
+		cx.argsParse(args)
 		return cx
 	}
 	return c
@@ -172,8 +173,8 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	if args.ExcludeTableList != "" {
 		c.ExcludeTableList = strings.Split(args.ExcludeTableList, ",")
 	}
-	if args.OnlyModel {
-		c.OnlyModel = args.OnlyModel
+	if args.OnlyModel != nil {
+		c.OnlyModel = *args.OnlyModel
 	}
 	if args.OutPath != "" {
 		c.OutPath = args.OutPath
@@ -181,29 +182,29 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	if args.OutFile != "" {
 		c.OutFile = args.OutFile
 	}
-	if args.WithUnitTest {
-		c.WithUnitTest = args.WithUnitTest
+	if args.WithUnitTest != nil {
+		c.WithUnitTest = *args.WithUnitTest
 	}
 	if args.ModelPkgName != "" {
 		c.ModelPkgName = args.ModelPkgName
 	}
-	if args.FieldNullable {
-		c.FieldNullable = args.FieldNullable
+	if args.FieldNullable != nil {
+		c.FieldNullable = *args.FieldNullable
 	}
-	if args.FieldCoverable {
-		c.FieldCoverable = args.FieldCoverable
+	if args.FieldCoverable != nil {
+		c.FieldCoverable = *args.FieldCoverable
 	}
-	if args.FieldWithIndexTag {
-		c.FieldWithIndexTag = args.FieldWithIndexTag
+	if args.FieldWithIndexTag != nil {
+		c.FieldWithIndexTag = *args.FieldWithIndexTag
 	}
-	if args.FieldSignable {
-		c.FieldSignable = args.FieldSignable
+	if args.FieldSignable != nil {
+		c.FieldSignable = *args.FieldSignable
 	}
-	if args.FieldWithTypeTag {
-		c.FieldWithTypeTag = args.FieldWithTypeTag
+	if args.FieldWithTypeTag != nil {
+		c.FieldWithTypeTag = *args.FieldWithTypeTag
 	}
-	if args.FieldJSONTypeTag {
-		c.FieldJSONTypeTag = args.FieldJSONTypeTag
+	if args.FieldJSONTypeTag != nil {
+		c.FieldJSONTypeTag = *args.FieldJSONTypeTag
 	}
 	if args.DefaultYAMLConfigFile != "" {
 		c.defaultYAMLConfigFile = args.DefaultYAMLConfigFile
@@ -277,8 +278,8 @@ func (c *CmdParams) GetTypeMappings() map[string]func(columnType gorm.ColumnType
 
 func (c *CmdParams) GetModelOptions() []gen.ModelOpt {
 	return []gen.ModelOpt{
-		gen.FieldGORMTagReg("*", nullFieldForGo),
-		gen.FieldRegexCommentReplace(`\{\{*\}\}`, replaceComment),
+		gen.FieldGORMTagReg(`.*`, nullFieldForGo),
+		//gen.FieldRegexCommentReplace(`\{\{.*\}\}`, replaceComment),
 	}
 }
 
@@ -380,10 +381,34 @@ func extractDSNDBType(dsn string) string {
 }
 
 func nullFieldForGo(tag field.GormTag) field.GormTag {
+	var newTag = field.GormTag{}
 	for key, values := range tag {
-		log.Printf("tag=%s,vlaues=%+v", key, values)
+		if key == "comment" {
+			continue
+		}
+		if key != "default" {
+			newTag[key] = values
+			continue
+		}
+		vs := tag["type"]
+		if len(vs) > 0 {
+			if _, ok := tag["not null"]; ok {
+				switch expr := vs[0]; expr {
+				case "string":
+					if values[0] != "" {
+						continue
+					}
+				case "boolean":
+					if values[0] == "true" {
+						continue
+					}
+				default:
+					newTag[key] = values
+				}
+			}
+		}
 	}
-	return tag
+	return newTag
 }
 
 func replaceComment(comment string) string {
@@ -394,7 +419,14 @@ func replaceComment(comment string) string {
 }
 
 func SaveYAMLConfigFile(params *CmdParams, saveFile string) (string, error) {
-	var data, err = yaml.Marshal(params.withDefault().Revise())
+	var (
+		database = params.withDefault().Revise()
+		config   = &YamlConfig{
+			Version:  "v1",
+			Database: database,
+		}
+		data, err = yaml.Marshal(config)
+	)
 	if err != nil {
 		return saveFile, err
 	}
