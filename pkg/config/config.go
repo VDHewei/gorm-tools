@@ -332,7 +332,7 @@ func (c *CmdParams) withDefault() *CmdParams {
 	if len(c.Tables) <= 0 {
 		c.Tables = []string{"test", "user"}
 	}
-	c.args.PrintArgsValues()
+	// c.args.PrintArgsValues()
 	if len(c.FieldsTypeMapping) <= 0 {
 		c.FieldsTypeMapping = []string{"jsonb:datatypes.JSON"}
 	}
@@ -435,9 +435,9 @@ func schemaPostgresToValues(dsn string) string {
 		values = append(values, fmt.Sprintf("host=%s", uri.Hostname()))
 		indexes["host"] = struct{}{}
 		if p := uri.Port(); p != "" {
-			values = append(values, uri.Port())
+			values = append(values, fmt.Sprintf("port=%s", p))
 		} else {
-			values = append(values, "5432")
+			values = append(values, "port=5432")
 		}
 		indexes["port"] = struct{}{}
 		if uri.User != nil {
