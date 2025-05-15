@@ -258,11 +258,18 @@ func (g *GenTools) PrintTables() bool {
 }
 
 func (g *GenTools) PrintTableMetaInfo() bool {
+	if g.params.ShowTable == "" {
+		return false
+	}
 	if g.params.DSN == "" {
-		log.Fatalln("print table meta require dsn option")
+		log.Fatalln("print table defined require dsn option")
 		return true
 	}
-	return false
+	db := g.GetDB()
+	if db == nil {
+		return true
+	}
+	return PrintTable(db, g.params.ShowTable)
 }
 
 func New(opts ...Option) *GenTools {
