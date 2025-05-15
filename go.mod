@@ -53,7 +53,4 @@ require (
 	gorm.io/hints v1.1.0 // indirect
 )
 
-replace (
-	gorm.io/gen v0.3.27 => ./external/gorm-gen
-	gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
-)
+replace gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
