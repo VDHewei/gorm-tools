@@ -45,16 +45,6 @@ type (
 	DBType string
 )
 
-const (
-	// DbMySQL Gorm Drivers mysql || postgres || sqlite || sqlserver
-	DbMySQL          DBType = "mysql"
-	DbPostgres       DBType = "postgres"
-	DbSQLite         DBType = "sqlite"
-	DbSQLServer      DBType = "sqlserver"
-	DbClickHouse     DBType = "clickhouse"
-	DefaultQueryPath        = "./dao/query"
-)
-
 func (d DBType) String() string {
 	return string(d)
 }
@@ -291,6 +281,42 @@ func (c *CmdParams) withDefault() *CmdParams {
 	if len(c.ImportPkgPaths) <= 0 {
 		c.ImportPkgPaths = []string{"gorm.io/datatypes"}
 	}
+	if c.DSN == "" {
+		if c.DB == "" {
+			c.DSN = defaultMysqlDSN
+		} else {
+			switch strings.ToLower(c.DB) {
+			case DbMySQL.String():
+				c.DSN = defaultMysqlDSN
+			case DbPostgres.String():
+				c.DSN = defaultPostgresDSN
+			case DbSQLite.String():
+				c.DSN = defaultSQLiteDSN
+			case DbSQLServer.String():
+				c.DSN = defaultSQLServerDSN
+			case DbClickHouse.String():
+				c.DSN = defaultClickHouseDSN
+			default:
+				c.DSN = defaultMysqlDSN
+			}
+		}
+	}
+	if c.DB == "" {
+		c.DB = extractDSNDBType(c.DSN)
+	}
+	if c.OutPath == "" {
+		c.OutPath = "./models"
+	}
+	if len(c.ExcludeTableList) <= 0 {
+		c.ExcludeTableList = []string{"ignore_table_name1", "ignore_table_name2"}
+	}
+	if c.ModelPkgName == "" {
+		c.ModelPkgName = "models"
+	}
+	if len(c.Tables) <= 0 {
+		c.Tables = []string{"test", "user"}
+	}
+	c.args.PrintArgsValues()
 	if len(c.FieldsTypeMapping) <= 0 {
 		c.FieldsTypeMapping = []string{"jsonb:datatypes.JSON"}
 	}

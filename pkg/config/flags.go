@@ -2,8 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jessevdk/go-flags"
-	"log"
 )
 
 type Options struct {
@@ -28,6 +28,7 @@ type Options struct {
 	ImportPkgPaths        []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`
 	DefaultYAMLConfigFile string   `yaml:"defaultYAMLConfigFile" json:"defaultYAMLConfigFile" long:"defaultYAMLConfigFile" short:"d" description:"generate default yaml config file"`
 	helpMsg               bool
+	rowValues             []string
 }
 
 func NewOptions() *Options {
@@ -36,6 +37,7 @@ func NewOptions() *Options {
 
 func (f *Options) Parse() (*Options, error) {
 	args, err := flags.Parse(f)
+	f.rowValues = args
 	if err != nil {
 		if errors.Is(err.(*flags.Error).Type, flags.ErrRequired) &&
 			f.DefaultYAMLConfigFile != "" {
@@ -47,8 +49,15 @@ func (f *Options) Parse() (*Options, error) {
 		}
 		return nil, err
 	}
-	log.Printf("args: %+v", args)
 	return f, nil
+}
+
+func (f *Options) PrintArgsValues() {
+	fmt.Printf("args=: %+v\n", f.rowValues)
+}
+
+func (f *Options) GetRawArgs() []string {
+	return f.rowValues
 }
 
 func (f *Options) GetHelpMsg() bool {
