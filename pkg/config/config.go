@@ -393,17 +393,17 @@ func replaceComment(comment string) string {
 	return comment
 }
 
-func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
+func SaveYAMLConfigFile(params *CmdParams, saveFile string) (string, error) {
 	var data, err = yaml.Marshal(params.withDefault().Revise())
 	if err != nil {
-		return err
+		return saveFile, err
 	}
 	ext := strings.ToLower(filepath.Ext(saveFile))
 	if ext == "" {
 		var state os.FileInfo
 		if state, err = os.Stat(saveFile); err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
-				return err
+				return saveFile, err
 			}
 			_ = os.MkdirAll(saveFile, os.ModePerm)
 		}
@@ -413,12 +413,12 @@ func SaveYAMLConfigFile(params *CmdParams, saveFile string) error {
 		}
 	}
 	if ext != ".yaml" && ext != ".yml" {
-		return errors.New("save file must be  yaml or yml")
+		return saveFile, errors.New("save file must be  yaml or yml")
 	}
 	if err = os.WriteFile(saveFile, data, 0644); err != nil {
-		return err
+		return saveFile, err
 	}
-	return nil
+	return saveFile, nil
 }
 
 func schemaPostgresToValues(dsn string) string {

@@ -185,7 +185,8 @@ func (g *GenTools) PrintHelp() bool {
 func (g *GenTools) GenYAMLConfigFile() bool {
 	file := g.params.GetGenDefaultYAMLFile()
 	if file != "" {
-		if err := config.SaveYAMLConfigFile(g.params, file); err != nil {
+		var err error
+		if file, err = config.SaveYAMLConfigFile(g.params, file); err != nil {
 			log.Fatalln("gen yaml config file fail:", err)
 			os.Exit(-1)
 		} else {
