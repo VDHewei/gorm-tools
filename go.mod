@@ -5,6 +5,7 @@ go 1.23.0
 require (
 	github.com/jessevdk/go-flags v1.6.1
 	gopkg.in/yaml.v3 v3.0.1
+	gorm.io/datatypes v1.2.4
 	gorm.io/driver/clickhouse v0.6.1
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
@@ -12,6 +13,7 @@ require (
 	gorm.io/driver/sqlserver v1.5.4
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.26.1
+	gorm.io/plugin/dbresolver v1.5.3
 )
 
 require (
@@ -48,9 +50,7 @@ require (
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
-	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/hints v1.1.0 // indirect
-	gorm.io/plugin/dbresolver v1.5.3 // indirect
 )
 
 replace (
