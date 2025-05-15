@@ -36,8 +36,8 @@ type (
 		FieldsTypeMapping     []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
 		ImportPkgPaths        []string `yaml:"importPkgPaths"`    // generate code import package path
 		Mode                  string   `yaml:"mode"`              // generate mode (input DefaultQuery|QueryInterface|OutContext)
-		ShowTables            bool     `yaml:"showTables"`        // show database tables in console
-		ShowTable             string   `yaml:"showTable"`         // show table define fields in console
+		ShowTables            bool     `yaml:"-" json:"-"`        // show database tables in console
+		ShowTable             string   `yaml:"-" json:"-"`        // show table define fields in console
 		defaultYAMLConfigFile string   `json:"-" yaml:"-"`        // generate default yaml config file
 		version               string   `json:"-" yaml:"-"`
 	}
