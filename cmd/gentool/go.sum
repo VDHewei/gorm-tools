@@ -22,8 +22,8 @@ github.com/ClickHouse/ch-go v0.61.5 h1:zwR8QbYI0tsMiEcze/uIMK+Tz1D3XZXLdNrlaOpeE
 github.com/ClickHouse/ch-go v0.61.5/go.mod h1:s1LJW/F/LcFs5HJnuogFMta50kKDO0lf9zzfrbl0RQg=
 github.com/ClickHouse/clickhouse-go/v2 v2.23.2 h1:+DAKPMnxLS7pduQZsrJc8OhdLS2L9MfDEJ2TS+hpYDM=
 github.com/ClickHouse/clickhouse-go/v2 v2.23.2/go.mod h1:aNap51J1OM3yxQJRgM+AlP/MPkGBCL8A74uQThoQhR0=
-github.com/VDHewei/gorm-tools v1.0.0 h1:ElWGa8bc7OEFV2iYjYgwt/Q/RQ5p5BJHPBiqC5eKcpU=
-github.com/VDHewei/gorm-tools v1.0.0/go.mod h1:khmRyxWDA/eUgy6zEIr4YYnQjUIBbvPq+tYPZmE7/7w=
+github.com/VDHewei/gorm-tools v1.0.1 h1:6bpbfAs/Ijfnd33T22vLswn/alYZGnfE+6lvMQDwKEM=
+github.com/VDHewei/gorm-tools v1.0.1/go.mod h1:khmRyxWDA/eUgy6zEIr4YYnQjUIBbvPq+tYPZmE7/7w=
 github.com/andybalholm/brotli v1.1.0 h1:eLKJA0d02Lf0mVpIDgYnqXcUn0GqVmEFny3VuID1U3M=
 github.com/andybalholm/brotli v1.1.0/go.mod h1:sms7XGricyQI9K10gOSf56VKKWS4oLer58Q+mhRPtnY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

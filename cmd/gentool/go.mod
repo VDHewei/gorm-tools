@@ -2,7 +2,7 @@ module gentool
 
 go 1.23.0
 
-require github.com/VDHewei/gorm-tools v1.0.0
+require github.com/VDHewei/gorm-tools v1.0.1
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -53,6 +53,6 @@ require (
 )
 
 replace (
-	gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
 	gorm.io/plugin/dbresolver v1.5.0 => gorm.io/plugin/dbresolver v1.6.0
+	gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
 )
