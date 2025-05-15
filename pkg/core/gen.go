@@ -182,6 +182,10 @@ func (g *GenTools) PrintHelp() bool {
 	return g.params.IsHelp()
 }
 
+func (g *GenTools) PrintVersion() bool {
+	return g.params.PrintVersion()
+}
+
 func (g *GenTools) GenYAMLConfigFile() bool {
 	file := g.params.GetGenDefaultYAMLFile()
 	if file != "" {

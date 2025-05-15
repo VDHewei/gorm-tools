@@ -27,7 +27,8 @@ type Options struct {
 	FieldJSONTypeTag      *bool    `env:"GEN_FIELD_JSON_TYPE_TAG" json:"fieldJSONTypeTag" long:"fieldJSONTypeTag" description:"generate field with gorm json type"`
 	FieldsTypeMapping     []string `env:"GEN_FIELDS_TYPE_MAPPING" json:"fieldsTypeMapping" long:"fieldsTypeMapping" short:"m" description:"mapping field type mapping ,eg: jsonb:datatypes.JSON"`
 	ImportPkgPaths        []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`
-	DefaultYAMLConfigFile string   `yaml:"defaultYAMLConfigFile" json:"defaultYAMLConfigFile" long:"defaultYAMLConfigFile" short:"d" description:"generate default yaml config file"`
+	DefaultYAMLConfigFile string   `env:"GEN_Config_File" json:"defaultYAMLConfigFile" long:"defaultYAMLConfigFile" short:"d" description:"generate default yaml config file"`
+	V                     *bool    `json:"version" long:"version" short:"v" description:"print tool version"`
 	helpMsg               bool
 	rowValues             []string
 }

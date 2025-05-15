@@ -36,6 +36,7 @@ type (
 		ImportPkgPaths        []string `yaml:"importPkgPaths"`    // generate code import package path
 		Mode                  string   `yaml:"mode"`              // generate mode (input DefaultQuery|QueryInterface|OutContext)
 		defaultYAMLConfigFile string   `json:"-" yaml:"-"`        // generate default yaml config file
+		version               string   `json:"-" yaml:"-"`
 	}
 	// YamlConfig is yaml config struct
 	YamlConfig struct {
@@ -74,6 +75,9 @@ func New() *CmdParams {
 func (c *CmdParams) Revise() *CmdParams {
 	if c == nil {
 		return c
+	}
+	if c.version == "" {
+		c.version = version
 	}
 	if c.DB == "" {
 		if c.DSN == "" {
@@ -287,6 +291,14 @@ func (c *CmdParams) IsHelp() bool {
 	return c.args != nil && c.args.GetHelpMsg()
 }
 
+func (c *CmdParams) PrintVersion() bool {
+	if c.args.V != nil && *c.args.V {
+		fmt.Println("gentool version:", version)
+		return true
+	}
+	return false
+}
+
 func (c *CmdParams) GetGenDefaultYAMLFile() string {
 	return c.defaultYAMLConfigFile
 }
@@ -409,13 +421,6 @@ func nullFieldForGo(tag field.GormTag) field.GormTag {
 		}
 	}
 	return newTag
-}
-
-func replaceComment(comment string) string {
-	if strings.Contains(comment, "{{") && strings.Contains(comment, "}}") {
-		return strings.ReplaceAll(strings.ReplaceAll(comment, "{{", "{"), "}}", "}")
-	}
-	return comment
 }
 
 func SaveYAMLConfigFile(params *CmdParams, saveFile string) (string, error) {

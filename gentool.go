@@ -4,7 +4,7 @@ import "github.com/VDHewei/gorm-tools/pkg/core"
 
 func main() {
 	cli := core.New()
-	if cli != nil && !cli.PrintHelp() {
+	if !cli.PrintHelp() && !cli.PrintVersion() {
 		cli.Execute()
 	}
 }
