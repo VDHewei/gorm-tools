@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/jessevdk/go-flags v1.6.1
+	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.4
 	gorm.io/driver/clickhouse v0.6.1

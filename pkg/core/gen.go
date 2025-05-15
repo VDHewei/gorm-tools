@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"log"
-	"os"
 )
 
 type (
@@ -146,14 +145,13 @@ func (g *GenTools) Execute() {
 	}
 	if g.params.DSN == "" {
 		log.Fatalln("generate model require dsn option")
-		os.Exit(-1)
 		return
 	}
 	g.g.UseDB(g.GetDB())
 	if g.params.OnlyModel {
 		if err := g.GenModels(); err != nil {
 			log.Fatalln("gen models fail:", err)
-			os.Exit(-1)
+			return
 		}
 	} else {
 		g.g.ApplyBasic(g.GetModels()...)
@@ -199,7 +197,7 @@ func (g *GenTools) GenYAMLConfigFile() bool {
 		var err error
 		if file, err = config.SaveYAMLConfigFile(g.params, file); err != nil {
 			log.Fatalln("gen yaml config file fail:", err)
-			os.Exit(-1)
+			return true
 		} else {
 			log.Printf("gen yaml config file success ,file path: %s", file)
 		}
@@ -232,6 +230,39 @@ func (g *GenTools) GetTables() []string {
 		tables = append(tables, t)
 	}
 	return tables
+}
+
+func (g *GenTools) PrintCmd() bool {
+	if g.PrintHelp() ||
+		g.PrintVersion() ||
+		g.PrintTables() ||
+		g.PrintTableMetaInfo() {
+		return true
+	}
+	return false
+}
+
+func (g *GenTools) PrintTables() bool {
+	if !g.params.ShowTables {
+		return false
+	}
+	if g.params.DSN == "" {
+		log.Fatalln("print tables require dsn option")
+		return true
+	}
+	db := g.GetDB()
+	if db == nil {
+		return true
+	}
+	return PrintTables(db, g.params.Tables, g.params.ExcludeTableList)
+}
+
+func (g *GenTools) PrintTableMetaInfo() bool {
+	if g.params.DSN == "" {
+		log.Fatalln("print table meta require dsn option")
+		return true
+	}
+	return false
 }
 
 func New(opts ...Option) *GenTools {

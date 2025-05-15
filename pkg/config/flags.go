@@ -30,6 +30,8 @@ type Options struct {
 	ImportPkgPaths        []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`
 	DefaultYAMLConfigFile string   `env:"GEN_Config_File" json:"defaultYAMLConfigFile" long:"defaultYAMLConfigFile" short:"d" description:"generate default yaml config file"`
 	V                     *bool    `json:"version" long:"version" short:"v" description:"print tool version"`
+	ShowTables            *bool    `json:"showTables" long:"showTables" short:"s" description:"show database tables in console"`
+	ShowTable             string   `json:"showTable" long:"showTable"  description:"show table define fields in console"`
 	helpMsg               bool
 	rowValues             []string
 }
