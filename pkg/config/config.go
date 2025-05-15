@@ -32,6 +32,7 @@ type (
 		FieldWithTypeTag      bool     `yaml:"fieldWithTypeTag"`  // generate field with gorm column type tag
 		FieldSignable         bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
 		FieldJSONTypeTag      bool     `yaml:"fieldJSONTypeTag"`  // generate field with gorm json type
+		ModelNameSignable     bool     `yaml:"modelNameSignable"` // detect integer field's unsigned type, adjust generated model name
 		FieldsTypeMapping     []string `yaml:"fieldsTypeMapping"` // generate table field with gorm type
 		ImportPkgPaths        []string `yaml:"importPkgPaths"`    // generate code import package path
 		Mode                  string   `yaml:"mode"`              // generate mode (input DefaultQuery|QueryInterface|OutContext)
@@ -209,6 +210,9 @@ func (c *CmdParams) argsParse(args *Options) *CmdParams {
 	}
 	if args.FieldJSONTypeTag != nil {
 		c.FieldJSONTypeTag = *args.FieldJSONTypeTag
+	}
+	if args.ModelNameSignable != nil {
+		c.ModelNameSignable = *args.ModelNameSignable
 	}
 	if args.DefaultYAMLConfigFile != "" {
 		c.defaultYAMLConfigFile = args.DefaultYAMLConfigFile

@@ -24,6 +24,7 @@ type Options struct {
 	FieldWithIndexTag     *bool    `env:"GEN_FIELD_WITH_INDEX_TAG" json:"fieldWithIndexTag" long:"fieldWithIndexTag" description:"generate field with gorm index tag"`
 	FieldWithTypeTag      *bool    `env:"GEN_FIELD_WITH_TYPE_TAG" json:"fieldWithTypeTag" long:"fieldWithTypeTag" description:"generate field with gorm column type tag"`
 	FieldSignable         *bool    `env:"GEN_FIELD_SIGNABLE" json:"fieldSignable" long:"fieldSignable" description:"detect integer field's unsigned type, adjust generated data type"`
+	ModelNameSignable     *bool    `env:"GEN_MODEL_NAME_SIGNABLE" json:"modelNameSignable" long:"modelNameSignable" description:"detect integer field's unsigned type, adjust generated model name"`
 	FieldJSONTypeTag      *bool    `env:"GEN_FIELD_JSON_TYPE_TAG" json:"fieldJSONTypeTag" long:"fieldJSONTypeTag" description:"generate field with gorm json type"`
 	FieldsTypeMapping     []string `env:"GEN_FIELDS_TYPE_MAPPING" json:"fieldsTypeMapping" long:"fieldsTypeMapping" short:"m" description:"mapping field type mapping ,eg: jsonb:datatypes.JSON"`
 	ImportPkgPaths        []string `env:"GEN_IMPORT_PKG_PATHS" json:"importPkgPaths" long:"importPkgPaths" short:"p" description:"generate code import package path,eg: github.com/xxx/xxx"`

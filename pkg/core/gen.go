@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/sqlserver"
 	gen "gorm.io/gen"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"log"
 	"os"
 )
@@ -87,6 +88,12 @@ func (g *GenTools) OpenDB() error {
 	g.params.Revise()
 	if g.db, err = ConnectDB(g.params.GetDBType(), g.params.DSN); err != nil {
 		return err
+	}
+	if g.params.ModelNameSignable {
+		g.db.Config.NamingStrategy = schema.NamingStrategy{
+			IdentifierMaxLength: 64,
+			SingularTable:       g.params.ModelNameSignable,
+		}
 	}
 	return nil
 }
