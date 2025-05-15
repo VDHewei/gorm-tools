@@ -53,6 +53,6 @@ require (
 )
 
 replace (
-	gorm.io/gen v0.3.27 => github.com/VDHewei/gorm-tools/external/gorm-gen
 	gorm.io/plugin/dbresolver v1.5.3 => gorm.io/plugin/dbresolver v1.6.0
+	gorm.io/gen v0.3.27 => github.com/VDHewei/gorm-tools/external/gorm-gen v1.0.1
 )
