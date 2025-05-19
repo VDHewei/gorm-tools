@@ -14,5 +14,5 @@ const (
 	defaultSQLiteDSN     = "file:./test.db?cache=shared&mode=rwc"
 	defaultSQLServerDSN  = "sqlserver://sa:123456@localhost:1433?database=test"
 	defaultClickHouseDSN = "tcp://127.0.0.1:9000?username=&database=&read_timeout=10&write_timeout=20&alt_hosts=127.0.0.2:9000,127.0.0.3:9000"
-	version              = `v1.0.9`
+	version              = `v1.0.10`
 )
