@@ -50,6 +50,14 @@ Install GEN as a binary tool
         generate code import package path,eg: github.com/xxx/xxx 
   -d,--defaultYAMLConfigFile string
         generate default yaml config file
+  --modelNameSignable
+        keep model names and table names consistent, without using plural rewriting
+  -v,--version
+        print tool version
+  -s,--showTables
+        show database tables in console
+  --showTable
+        show table define fields in console
 ```
 #### c
 default ""
@@ -90,7 +98,7 @@ generate field with gorm column type tag
 
 #### modelPkgName
 
-defalut table name.
+default table name.
 
 generated model code's package name.
 
@@ -108,11 +116,11 @@ Value : enter the required data table or leave it blank.
 
 eg :
 
-​       --tables="orders" #orders table
+       --tables="orders" #orders table
 
-​       --tables="orders,users" #orders table and users table
+       --tables="orders,users" #orders table and users table
 
-​       --tables=""          # All data tables in the database.
+       --tables=""          # All data tables in the database.
 
 Generate some tables code.
 
@@ -129,9 +137,57 @@ Value : False / True
 detect integer field's unsigned type, adjust generated data type
 
 
+### fieldJSONTypeTag
+
+Value : False / True
+
+generate field gorm tag with jsonb type(datatypes.JSON)
+
+### showTables
+
+Value : False / True
+
+show database tables in console
+
+```shell
+gorm-tools --dsn "user:pwd@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=True&loc=Local" -s
++--------------------------+---------+
+|        table_name        | comment |
++--------------------------+---------+
+|         user             |         |
+|       template_config    |         |
++--------------------------+---------+
+```
+### showTable
+
+Value: String
+
+show table define fields in console
+
+```shell
+gorm-tools --dsn "user:pwd@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=True&loc=Local" --showTable template_config
+<template_config>
++----------------+--------------------------+----------+-------+---------+---------+
+|     field      |           type           |  null    | pk/uk | default | comment |
++----------------+--------------------------+----------+-------+---------+---------+
+|       id       |         integer          |  false   |  pk   |         |         |
+|  extra_config  |          jsonb           |  false   |       |   {}    |         |
+|   is_hidden    |         boolean          |  false   |       |  false  |         |
+|    can_edit    |         boolean          |  false   |       |  true   |         |
+|  is_required   |         boolean          |  false   |       |  false  |         |
+|     status     |         boolean          |  false   |       |  true   |         |
+|   created_at   | timestamp with time zone |  false   |       |         |         |
+|   created_by   |           uuid           |  false   |       |         |         |
+|   updated_at   | timestamp with time zone |   true   |       |         |         |
+|   updated_by   |           uuid           |   true   |       |         |         |
+|   deleted_at   | timestamp with time zone |   true   |       |         |         |
+|   deleted_by   |           uuid           |   true   |       |         |         |
++----------------+--------------------------+----------+-------+---------+---------+
+```
+
 
 ### example
 
 ```shell
-gentool --dsn "user:pwd@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=True&loc=Local" --tables "orders,doctor"
+gorm-tools --dsn "user:pwd@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=True&loc=Local" --tables "orders,doctor"
 ```

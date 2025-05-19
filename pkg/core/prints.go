@@ -91,7 +91,7 @@ func PrintTable(db *gorm.DB, tableName string) bool {
 			return true
 		}
 	}
-	printTable, err := gotable.Create("field", "type", "not null", "pk/uk", "default", "comment")
+	printTable, err := gotable.Create("field", "type", "null", "pk/uk", "default", "comment")
 	if err != nil {
 		log.Fatalln("Create table failed: ", err.Error())
 		return true
