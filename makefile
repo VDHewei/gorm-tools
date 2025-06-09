@@ -2,7 +2,7 @@
 .PHONY: build_test
 # build cmd bin to test bin dir
 build_test: test_clean
-	go build -o ./tests/bin ./cmd/gentool/
+	go build -o ./tests/bin 
 
 .PHONY: test_clean
 # clean test bin dir
