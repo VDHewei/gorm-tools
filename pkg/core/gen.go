@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"log"
+	"reflect"
 )
 
 type (
@@ -272,6 +273,27 @@ func (g *GenTools) PrintTableMetaInfo() bool {
 	return PrintTable(db, g.params.ShowTable)
 }
 
+type FieldSizeMethod struct{}
+
+// GetFieldSize count model fields
+func (f *FieldSizeMethod) GetFieldSize() int32 {
+	vs := reflect.Indirect(reflect.ValueOf(f))
+	if v := vs.FieldByName("fieldMap"); v.IsValid() {
+		if v.Kind() == reflect.Map {
+			if v.Len() > 0 {
+				return int32(v.Len())
+			}
+		}
+	}
+	return int32(vs.NumField())
+}
+
+// ComputeSafeSize compute batch insert safe size
+func (f *FieldSizeMethod) ComputeSafeSize(max ...int32) int32 {
+	max = append(max, 65535)
+	return max[0]/f.GetFieldSize() - 100
+}
+
 func New(opts ...Option) *GenTools {
 	var ins = &GenTools{}
 	for _, o := range opts {
@@ -283,5 +305,6 @@ func New(opts ...Option) *GenTools {
 	if ins.g == nil {
 		ins.g = gen.NewGenerator(ins.LoadConfig())
 	}
+	ins.g.WithOpts(gen.WithMethod(FieldSizeMethod{}))
 	return ins
 }
